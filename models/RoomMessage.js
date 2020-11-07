@@ -133,4 +133,25 @@ roomMessageSchema.statics.getConversationByRoomId = async function (roomId, opti
   }
 }
 
+roomMessageSchema.statics.markMessageRead = async function (roomId, currentUserOnlineId) {
+  try {
+    return this.updateMany(
+      {
+        roomId,
+        'readByRecipients.readByUserId': { $ne: currentUserOnlineId }
+      },
+      {
+        $addToSet: {
+          readByRecipients: { readByUserId: currentUserOnlineId }
+        }
+      },
+      {
+        multi: true
+      }
+    )
+  } catch (error) {
+    throw error
+  }
+}
+
 export default mongoose.model('RoomMessage', roomMessageSchema)

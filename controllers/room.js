@@ -77,5 +77,23 @@ export default {
       return res.status(500).json({ success: false, error })
     }
   },
-  markConversationReadByRoomId: async (req, res) => { },
+  markConversationReadByRoomId: async (req, res) => {
+    try {
+      const { roomId } = req.params
+      const room = await RoomModel.getRoomByRoomId(roomId)
+      if (!room) {
+        return res.status(400).json({
+          success: false,
+          message: 'No room exists for this id',
+        })
+      }
+
+      const currentLoggedUser = req.userId
+      const result = await RoomMessageModel.markMessageRead(roomId, currentLoggedUser)
+      return res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({ success: false, error })
+    }
+  },
 }
